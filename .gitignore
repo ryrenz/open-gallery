@@ -12,3 +12,4 @@ node_modules/
 public/local-icons/
 .gallery-invites.json
 .gallery-likes.json
+.playwright-mcp/

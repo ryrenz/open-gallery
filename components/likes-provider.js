@@ -27,18 +27,20 @@ export function LikesProvider({ children }) {
 
   // Optimistic toggle: flip locally first, then persist; revert on failure.
   const toggle = useCallback((slug) => {
-    let nextLiked;
+    // Compute the next state synchronously from the current set — a functional
+    // setState updater does NOT run synchronously, so we cannot read the result
+    // out of it before the fetch below (it would be undefined → liked:false).
+    const nextLiked = !liked.has(slug);
 
     setLiked((current) => {
       const updated = new Set(current);
 
-      if (updated.has(slug)) {
-        updated.delete(slug);
-      } else {
+      if (nextLiked) {
         updated.add(slug);
+      } else {
+        updated.delete(slug);
       }
 
-      nextLiked = updated.has(slug);
       return updated;
     });
 
@@ -65,7 +67,7 @@ export function LikesProvider({ children }) {
           return reverted;
         });
       });
-  }, []);
+  }, [liked]);
 
   return (
     <LikesContext.Provider value={{ liked, toggle }}>
