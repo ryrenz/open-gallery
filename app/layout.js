@@ -1,5 +1,6 @@
 import { ClerkProvider } from "@clerk/nextjs";
 import GallerySyncListener from "@/components/gallery-sync-listener";
+import { LikesProvider } from "@/components/likes-provider";
 import { ICON_BASE_PATH, RESOLVED_ICON_VERSION } from "../lib/icon-assets";
 import { CLERK_ENABLED } from "../lib/auth-config";
 import "./globals.css";
@@ -43,7 +44,8 @@ export const metadata = {
 };
 
 export default function RootLayout({ children }) {
-  const body = CLERK_ENABLED ? <ClerkProvider>{children}</ClerkProvider> : children;
+  const tree = <LikesProvider>{children}</LikesProvider>;
+  const body = CLERK_ENABLED ? <ClerkProvider>{tree}</ClerkProvider> : tree;
 
   return (
     <html lang="en">

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import LikeButton from "@/components/like-button";
 import RetryImage from "@/components/retry-image";
 
 export function GalleryCard({
@@ -7,6 +8,7 @@ export function GalleryCard({
   interactive = true,
   overlayAction = null,
   prefetch = true,
+  showLike = true,
 }) {
   const cardBody = (
     <>
@@ -16,6 +18,11 @@ export function GalleryCard({
           loading="lazy"
           src={`/api/media/${gallery.slug}/${gallery.coverIndex}?mode=cover&w=560&q=70`}
         />
+        {showLike ? (
+          <div className="gallery-card-like">
+            <LikeButton slug={gallery.slug} title={gallery.title} variant="card" />
+          </div>
+        ) : null}
         {overlayAction ? (
           <div className="gallery-card-action">{overlayAction}</div>
         ) : null}

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import AuthUserButton from "@/components/auth-user-button";
 import ImageStrip from "@/components/image-strip";
+import LikeButton from "@/components/like-button";
 import { getGalleryBySlug } from "@/lib/gallery";
 
 export const dynamic = "force-dynamic";
@@ -43,6 +44,8 @@ export default async function GalleryDetailPage({ params }) {
           <ImageStrip gallery={gallery} />
         </div>
       </div>
+
+      <LikeButton slug={gallery.slug} title={gallery.title} variant="floating" />
     </main>
   );
 }

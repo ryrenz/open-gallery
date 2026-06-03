@@ -2,6 +2,7 @@ import Link from "next/link";
 
 const TABS = [
   { href: "/", key: "all", label: "All Galleries" },
+  { href: "/favorites", key: "favorites", label: "Favorites" },
   { href: "/artists", key: "artists", label: "Artists" },
 ];
 
