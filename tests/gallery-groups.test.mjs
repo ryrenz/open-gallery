@@ -22,12 +22,12 @@ test("groupGallerySummaries chunks galleries into blocks of ten", () => {
 
   assert.equal(groups.length, 2);
   assert.equal(groups[0].slug, "group-001");
-  assert.equal(groups[0].title, "Sets 1-10");
+  assert.equal(groups[0].title, "Vol. 01");
   assert.equal(groups[0].galleryCount, 10);
   assert.equal(groups[0].imageCount, 120);
   assert.equal(groups[0].galleries[0].slug, "gallery-1");
   assert.equal(groups[1].slug, "group-002");
-  assert.equal(groups[1].title, "Sets 11-20");
+  assert.equal(groups[1].title, "Vol. 02");
   assert.equal(groups[1].galleryCount, 10);
 });
 
@@ -39,7 +39,7 @@ test("groupGallerySummaries keeps the final partial block", () => {
 
   assert.equal(groups.length, 2);
   assert.equal(groups[1].slug, "group-002");
-  assert.equal(groups[1].title, "Sets 11-13");
+  assert.equal(groups[1].title, "Vol. 02");
   assert.equal(groups[1].startIndex, 11);
   assert.equal(groups[1].endIndex, 13);
   assert.equal(groups[1].galleryCount, 3);
