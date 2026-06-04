@@ -55,6 +55,39 @@ test("getArtistSummaries aggregates nested artist directories and filters empty 
   assert.equal(artistB.imageCount, 3);
 });
 
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+test("each artist page ranks prefixes within that artist only", async () => {
+  const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "open-gallery-artist-rank-"));
+  const sourceRoot = path.join(tempRoot, "source");
+  await fs.mkdir(sourceRoot, { recursive: true });
+
+  // Creation order sets dirCreatedAt (birthtime). For artist-a, "Beta Fresh" is
+  // newer than "Shenhe Old".
+  await createGalleryDirectory(sourceRoot, "artist-a", "Shenhe Old", ["1.jpg"]);
+  await sleep(15);
+  await createGalleryDirectory(sourceRoot, "artist-a", "Beta Fresh", ["1.jpg"]);
+  await sleep(15);
+  // artist-b's newest work shares the "shenhe" prefix. Globally that ranks the
+  // shenhe group highest; without per-artist ranking it would wrongly pull
+  // artist-a's old "Shenhe Old" ahead of its newer "Beta Fresh".
+  await createGalleryDirectory(sourceRoot, "artist-b", "Shenhe Newest", ["1.jpg"]);
+
+  process.env.GALLERY_SOURCE_DIR = sourceRoot;
+
+  const galleryModule = await loadGalleryModule(`artist-rank-${Date.now()}`);
+  const artists = await galleryModule.getArtistSummaries();
+  const artistA = artists.find((artist) => artist.title === "artist-a");
+  const detail = await galleryModule.getArtistBySlug(artistA.slug);
+
+  assert.deepEqual(
+    detail.galleries.map((gallery) => gallery.title),
+    ["Beta Fresh", "Shenhe Old"],
+  );
+});
+
 test("flat single-artist layout is still supported and uses source folder name as artist", async () => {
   const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "open-gallery-flat-"));
   const sourceRoot = path.join(tempRoot, "CrewdCreations");
