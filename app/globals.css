@@ -1067,3 +1067,28 @@ img {
     bottom: max(20px, env(safe-area-inset-bottom));
   }
 }
+
+/* Cover collage — flex rows that fill the frame with no gaps for any tile count */
+.cover-collage {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+  height: 100%;
+}
+
+.cover-collage-row {
+  display: flex;
+  flex: 1 1 0;
+  gap: 6px;
+  min-height: 0;
+}
+
+.cover-collage-tile {
+  flex: 1 1 0;
+  min-width: 0;
+  height: 100%;
+  border-radius: 12px;
+  object-fit: cover;
+  background: rgba(255, 255, 255, 0.42);
+}

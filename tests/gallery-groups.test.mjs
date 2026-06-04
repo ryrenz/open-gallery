@@ -41,6 +41,25 @@ test("packs distinct single-work characters into blocks of ten", () => {
   assert.equal(groups[1].galleryCount, 10);
 });
 
+test("keeps blocks at the minimum size without merging", () => {
+  // 18 single-work characters → 10 + 8 (both at least the minimum of 8).
+  const galleries = Array.from({ length: 18 }, (_, index) =>
+    createGallery(`Char${String(index).padStart(2, "0")} Set`, 1_000 - index),
+  );
+  const groups = groupGallerySummaries(galleries);
+  assert.deepEqual(groups.map((group) => group.galleryCount), [10, 8]);
+});
+
+test("merges a too-small trailing block into the previous one", () => {
+  // 11 single-work characters → 10 + 1; the trailing 1 folds back → one block of 11.
+  const galleries = Array.from({ length: 11 }, (_, index) =>
+    createGallery(`Char${String(index).padStart(2, "0")} Set`, 1_000 - index),
+  );
+  const groups = groupGallerySummaries(galleries);
+  assert.equal(groups.length, 1);
+  assert.equal(groups[0].galleryCount, 11);
+});
+
 test("galleryPrefix takes the first word before a space or symbol", () => {
   assert.equal(galleryPrefix("Rimuru Tempest Barista"), "rimuru");
   assert.equal(galleryPrefix("利姆露 咖啡师"), "利姆露");
@@ -73,13 +92,13 @@ test("keeps a character's works together and shows one cover per character", () 
     createGallery("Multi B", 99),
     createGallery("Multi C", 98),
     createGallery("Multi D", 97),
-    ...Array.from({ length: 8 }, (_, i) => createGallery(`Solo${i} X`, 50 - i)),
+    ...Array.from({ length: 6 }, (_, i) => createGallery(`Solo${i} X`, 50 - i)),
   ];
 
   const groups = groupGallerySummaries(galleries);
 
-  // Vol1 = Multi(4) + Solo0..Solo5(6) = 10 works / 7 characters; Vol2 = Solo6,Solo7.
-  assert.equal(groups.length, 2);
+  // Multi(4) + 6 solos = 10 works / 7 characters → one Vol.
+  assert.equal(groups.length, 1);
   const vol1 = groups[0];
   assert.equal(vol1.galleryCount, 10);
   assert.equal(vol1.characterCount, 7);
