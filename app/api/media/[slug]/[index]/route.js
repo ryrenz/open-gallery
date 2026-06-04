@@ -89,10 +89,33 @@ export async function GET(request, { params }) {
     });
   }
 
+  const cacheKey = buildCacheKey({
+    slug,
+    index: Number(index),
+    mode: "detail",
+    width,
+    quality,
+  });
+  const cachedMedia = await getCachedMedia(cacheKey, image.absolutePath);
+
+  if (cachedMedia) {
+    return new Response(cachedMedia, {
+      headers: {
+        "Content-Length": String(cachedMedia.byteLength),
+        "Content-Type": "image/jpeg",
+        "Cache-Control": "private, max-age=3600, stale-while-revalidate=86400",
+      },
+    });
+  }
+
   try {
     const transformed = await sharpTransform(image.absolutePath, {
       resize: { width, fit: "inside", withoutEnlargement: true },
       jpeg: { quality, mozjpeg: true, progressive: true },
+    });
+
+    setCachedMedia(cacheKey, transformed).catch((err) => {
+      console.error("[media-cache] Failed to write detail cache:", err);
     });
 
     return new Response(transformed, {

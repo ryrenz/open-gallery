@@ -1,17 +1,19 @@
 import { NextResponse } from "next/server";
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { CLERK_ENABLED } from "@/lib/auth-config";
+import { verifyInviteCookieValue } from "@/lib/invite-token";
 
 const INVITE_COOKIE = "og_invite";
-const SIGNIN_BYPASS_COOKIE = "og_signin_bypass";
 
 const isProtectedRoute = createRouteMatcher([
   "/",
   "/gallery(.*)",
   "/groups(.*)",
   "/artists(.*)",
+  "/favorites(.*)",
   "/api/media(.*)",
   "/api/galleries(.*)",
+  "/api/likes(.*)",
 ]);
 
 const isAdminRoute = createRouteMatcher(["/admin(.*)", "/api/admin(.*)"]);
@@ -19,30 +21,10 @@ const isSignUpRoute = createRouteMatcher(["/sign-up(.*)"]);
 const isInviteRoute = createRouteMatcher(["/invite(.*)", "/api/invite(.*)", "/sign-in(.*)"]);
 
 
-async function computeInviteToken() {
-  const secret = process.env.INVITE_COOKIE_SECRET || "";
-  const key = await crypto.subtle.importKey(
-    "raw",
-    new TextEncoder().encode(secret),
-    { name: "HMAC", hash: "SHA-256" },
-    false,
-    ["sign"],
-  );
-  const sig = await crypto.subtle.sign(
-    "HMAC",
-    key,
-    new TextEncoder().encode("verified"),
-  );
-  return Array.from(new Uint8Array(sig))
-    .map((b) => b.toString(16).padStart(2, "0"))
-    .join("");
-}
-
 async function hasValidInviteCookie(req) {
   const cookieValue = req.cookies.get(INVITE_COOKIE)?.value;
   if (!cookieValue) return false;
-  const expected = await computeInviteToken();
-  return cookieValue === expected;
+  return verifyInviteCookieValue(cookieValue);
 }
 
 function isInviteEnabled() {
