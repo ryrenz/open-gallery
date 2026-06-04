@@ -7,30 +7,35 @@ import {
   sortGalleriesByPrefixGroup,
 } from "../lib/gallery.js";
 
-function createGallery(index, imageCount = 12) {
+function createGallery(name, dirCreatedAt = 0, imageCount = 12) {
   return {
-    slug: `gallery-${index}`,
-    title: `Gallery ${index}`,
+    slug: `gallery-${name}`,
+    title: name,
+    originalTitle: name,
     sourceType: "folder",
-    sourcePath: `/tmp/gallery-${index}`,
-    updatedAt: 1_000 - index,
+    sourcePath: `/tmp/${name}`,
+    dirCreatedAt,
+    updatedAt: dirCreatedAt,
     imageCount,
     coverIndex: 0,
     previewShape: "Quick read",
   };
 }
 
-test("groupGallerySummaries chunks galleries into blocks of ten", () => {
-  const galleries = Array.from({ length: 20 }, (_, index) => createGallery(index + 1));
+test("packs distinct single-work characters into blocks of ten", () => {
+  // 20 distinct characters (one work each) pack 10 per Vol → 2 Vols.
+  const galleries = Array.from({ length: 20 }, (_, index) =>
+    createGallery(`Char${String(index).padStart(2, "0")} Set`, 1_000 - index),
+  );
   const groups = groupGallerySummaries(galleries);
 
   assert.equal(groups.length, 2);
   assert.equal(groups[0].slug, "group-001");
   assert.equal(groups[0].title, "Vol. 01");
   assert.equal(groups[0].galleryCount, 10);
+  assert.equal(groups[0].characterCount, 10);
+  assert.equal(groups[0].coverGalleries.length, 10);
   assert.equal(groups[0].imageCount, 120);
-  assert.equal(groups[0].galleries[0].slug, "gallery-1");
-  assert.equal(groups[1].slug, "group-002");
   assert.equal(groups[1].title, "Vol. 02");
   assert.equal(groups[1].galleryCount, 10);
 });
@@ -59,21 +64,46 @@ test("sortGalleriesByPrefixGroup keeps same-prefix works together and pulls the 
   assert.deepEqual(ordered, ["Zelda Q", "Yukino B", "Yukino A", "Aerith X"]);
 });
 
-test("groupGallerySummaries keeps the final partial block", () => {
-  const galleries = Array.from({ length: 13 }, (_, index) =>
-    createGallery(index + 1, index < 10 ? 10 : 5),
-  );
+test("keeps a character's works together and shows one cover per character", () => {
+  // "Multi" has 4 works; plus 8 single-work characters. Packing keeps Multi
+  // whole and fills to ~10 works.
+  const galleries = [
+    createGallery("Multi A", 100),
+    createGallery("Multi B", 99),
+    createGallery("Multi C", 98),
+    createGallery("Multi D", 97),
+    ...Array.from({ length: 8 }, (_, i) => createGallery(`Solo${i} X`, 50 - i)),
+  ];
+
   const groups = groupGallerySummaries(galleries);
 
+  // Vol1 = Multi(4) + Solo0..Solo5(6) = 10 works / 7 characters; Vol2 = Solo6,Solo7.
   assert.equal(groups.length, 2);
-  assert.equal(groups[1].slug, "group-002");
-  assert.equal(groups[1].title, "Vol. 02");
-  assert.equal(groups[1].startIndex, 11);
-  assert.equal(groups[1].endIndex, 13);
-  assert.equal(groups[1].galleryCount, 3);
-  assert.equal(groups[1].imageCount, 15);
-  assert.deepEqual(
-    groups[1].galleries.map((gallery) => gallery.slug),
-    ["gallery-11", "gallery-12", "gallery-13"],
+  const vol1 = groups[0];
+  assert.equal(vol1.galleryCount, 10);
+  assert.equal(vol1.characterCount, 7);
+  assert.equal(vol1.coverGalleries.length, 7);
+
+  // One cover for "Multi" (its newest, "Multi A"), but all 4 works in the list.
+  const multiCovers = vol1.coverGalleries.filter(
+    (g) => galleryPrefix(g.originalTitle) === "multi",
   );
+  assert.equal(multiCovers.length, 1);
+  assert.equal(multiCovers[0].slug, "gallery-Multi A");
+  const multiWorks = vol1.galleries.filter(
+    (g) => galleryPrefix(g.originalTitle) === "multi",
+  );
+  assert.equal(multiWorks.length, 4);
+});
+
+test("an oversized single character forms its own block over the limit", () => {
+  // 13 works, all the same character → one Vol over the 10-work target, with a
+  // single cover.
+  const galleries = Array.from({ length: 13 }, (_, i) => createGallery(`Big ${i}`, 100 - i));
+  const groups = groupGallerySummaries(galleries);
+
+  assert.equal(groups.length, 1);
+  assert.equal(groups[0].galleryCount, 13);
+  assert.equal(groups[0].characterCount, 1);
+  assert.equal(groups[0].coverGalleries.length, 1);
 });
