@@ -4,6 +4,7 @@ import assert from "node:assert/strict";
 import {
   galleryPrefix,
   groupGallerySummaries,
+  pickCharacterCovers,
   sortGalleriesByPrefixGroup,
 } from "../lib/gallery.js";
 
@@ -94,6 +95,21 @@ test("keeps a character's works together and shows one cover per character", () 
     (g) => galleryPrefix(g.originalTitle) === "multi",
   );
   assert.equal(multiWorks.length, 4);
+});
+
+test("pickCharacterCovers returns one newest cover per character up to the limit", () => {
+  const galleries = [
+    createGallery("Aaa 1", 100),
+    createGallery("Aaa 2", 90), // same character, older — should be dropped
+    createGallery("Bbb 1", 80),
+    createGallery("Ccc 1", 70),
+  ];
+
+  assert.deepEqual(
+    pickCharacterCovers(galleries).map((g) => g.slug),
+    ["gallery-Aaa 1", "gallery-Bbb 1", "gallery-Ccc 1"],
+  );
+  assert.equal(pickCharacterCovers(galleries, 2).length, 2);
 });
 
 test("an oversized single character forms its own block over the limit", () => {

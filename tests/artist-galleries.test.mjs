@@ -50,7 +50,8 @@ test("getArtistSummaries aggregates nested artist directories and filters empty 
   assert.ok(artistB);
   assert.equal(artistA.galleryCount, 2);
   assert.equal(artistA.imageCount, 3);
-  assert.equal(artistA.previewGalleries.length, 2);
+  // "Set 01" and "Set 02" share the prefix "set" → one character → one cover.
+  assert.equal(artistA.previewGalleries.length, 1);
   assert.equal(artistB.galleryCount, 1);
   assert.equal(artistB.imageCount, 3);
 });

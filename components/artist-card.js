@@ -1,12 +1,22 @@
 import Link from "next/link";
 
 export default function ArtistCard({ artist }) {
+  const covers = artist.previewGalleries;
+  const columns = Math.max(1, Math.ceil(Math.sqrt(covers.length)));
+  const rows = Math.max(1, Math.ceil(covers.length / columns));
+
   return (
     <article className="gallery-card artist-card">
       <Link href={`/artists/${artist.slug}`}>
         <div className="cover-frame artist-cover-frame">
-          <div className="artist-cover-grid">
-            {artist.previewGalleries.map((gallery) => (
+          <div
+            className="artist-cover-grid"
+            style={{
+              gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))`,
+              gridTemplateRows: `repeat(${rows}, minmax(0, 1fr))`,
+            }}
+          >
+            {covers.map((gallery) => (
               <img
                 alt={gallery.title}
                 className="artist-cover-tile"
