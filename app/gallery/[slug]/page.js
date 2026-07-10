@@ -35,9 +35,19 @@ export default async function GalleryDetailPage({ params }) {
       <div className="detail-body">
         <header className="detail-hero">
           <div>
-            <Link className="back-link" href="/">
-              Back to covers
-            </Link>
+            <div className="detail-back-row">
+              <Link className="back-link" href="/">
+                Back to covers
+              </Link>
+              {navigation ? (
+                <Link
+                  className="back-link"
+                  href={`/groups/${navigation.groupSlug}`}
+                >
+                  Back to {navigation.groupTitle}
+                </Link>
+              ) : null}
+            </div>
             <div className="detail-title-row">
               <h1>{gallery.title}</h1>
               {gallery.artistName ? (

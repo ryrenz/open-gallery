@@ -9,7 +9,7 @@ import RetryImage from "@/components/retry-image";
 // jumps straight to that work; the strip scrolls by drag or its own scrollbar
 // when the works overflow.
 export default function WorkNavigator({ navigation }) {
-  const { works, currentIndex, groupTitle } = navigation;
+  const { works, currentIndex, groupSlug, groupTitle } = navigation;
   const scrollerRef = useRef(null);
   const currentRef = useRef(null);
   // Tracks a pointer drag so a drag-to-scroll gesture doesn't also fire a
@@ -85,7 +85,9 @@ export default function WorkNavigator({ navigation }) {
   return (
     <nav className="work-nav" aria-label="Other works in this collection">
       <div className="work-nav-head">
-        <span className="work-nav-eyebrow">More in {groupTitle}</span>
+        <Link className="work-nav-collection" href={`/groups/${groupSlug}`}>
+          ← Back to {groupTitle}
+        </Link>
         <div className="work-nav-arrows">
           {prev ? (
             <Link className="work-nav-arrow" href={`/gallery/${prev.slug}`}>

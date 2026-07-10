@@ -859,12 +859,37 @@ img {
   animation: shimmer 1.6s linear infinite;
 }
 
+.detail-back-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 18px;
+}
+
 .work-nav {
   display: grid;
   gap: 14px;
   margin-top: 12px;
   padding-top: 24px;
   border-top: 1px solid var(--line);
+}
+
+.work-nav-collection {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 16px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--accent-3);
+  font-weight: 700;
+  font-size: 0.85rem;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.work-nav-collection:hover {
+  background: var(--panel-strong);
+  transform: translateY(-1px);
 }
 
 .work-nav-head {
