@@ -32,6 +32,9 @@ export function GalleryCard({
       </div>
       <div className="gallery-info">
         <h3 className="gallery-title">{gallery.title}</h3>
+        {gallery.artistName ? (
+          <span className="gallery-card-artist">{gallery.artistName}</span>
+        ) : null}
       </div>
     </>
   );

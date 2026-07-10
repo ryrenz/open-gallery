@@ -2,13 +2,15 @@ import Link from "next/link";
 import AuthUserButton from "@/components/auth-user-button";
 import ImageStrip from "@/components/image-strip";
 import LikeButton from "@/components/like-button";
-import { getGalleryBySlug } from "@/lib/gallery";
+import WorkNavigator from "@/components/work-navigator";
+import { getGalleryBySlug, getGalleryNavigation } from "@/lib/gallery";
 
 export const dynamic = "force-dynamic";
 
 export default async function GalleryDetailPage({ params }) {
   const { slug } = await params;
   const gallery = await getGalleryBySlug(slug);
+  const navigation = gallery ? await getGalleryNavigation(slug) : null;
 
   if (!gallery) {
     return (
@@ -36,13 +38,27 @@ export default async function GalleryDetailPage({ params }) {
             <Link className="back-link" href="/">
               Back to covers
             </Link>
-            <h1>{gallery.title}</h1>
+            <div className="detail-title-row">
+              <h1>{gallery.title}</h1>
+              {gallery.artistName ? (
+                <Link
+                  className="detail-artist"
+                  href={`/artists/${gallery.artistSlug}`}
+                >
+                  {gallery.artistName}
+                </Link>
+              ) : null}
+            </div>
           </div>
         </header>
 
         <div className="detail-reader">
           <ImageStrip gallery={gallery} />
         </div>
+
+        {navigation && navigation.works.length > 1 ? (
+          <WorkNavigator navigation={navigation} />
+        ) : null}
       </div>
 
       <LikeButton slug={gallery.slug} title={gallery.title} variant="floating" />
