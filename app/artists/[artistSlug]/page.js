@@ -61,6 +61,7 @@ export default async function ArtistDetailPage({ params }) {
           </>
         ) : (
           <GalleryGroupManager
+            collectionHref={`/artists/${artistSlug}`}
             emptyRedirectHref="/artists"
             group={{
               title: artist.title,

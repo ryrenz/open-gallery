@@ -9,7 +9,11 @@ import RetryImage from "@/components/retry-image";
 // jumps straight to that work; the strip scrolls by drag or its own scrollbar
 // when the works overflow.
 export default function WorkNavigator({ navigation }) {
-  const { works, currentIndex, groupSlug, groupTitle } = navigation;
+  const { works, currentIndex, collectionHref, collectionTitle } = navigation;
+  // Carry the collection context on every work link so moving through the set
+  // (prev/next or a thumbnail) keeps the strip scoped to this same collection.
+  const fromQuery = `?from=${encodeURIComponent(collectionHref)}`;
+  const workHref = (work) => `/gallery/${work.slug}${fromQuery}`;
   const scrollerRef = useRef(null);
   const currentRef = useRef(null);
   // Tracks a pointer drag so a drag-to-scroll gesture doesn't also fire a
@@ -85,19 +89,19 @@ export default function WorkNavigator({ navigation }) {
   return (
     <nav className="work-nav" aria-label="Other works in this collection">
       <div className="work-nav-head">
-        <Link className="work-nav-collection" href={`/groups/${groupSlug}`}>
-          ← Back to {groupTitle}
+        <Link className="work-nav-collection" href={collectionHref}>
+          ← Back to {collectionTitle}
         </Link>
         <div className="work-nav-arrows">
           {prev ? (
-            <Link className="work-nav-arrow" href={`/gallery/${prev.slug}`}>
+            <Link className="work-nav-arrow" href={workHref(prev)}>
               ← Prev
             </Link>
           ) : (
             <span className="work-nav-arrow is-disabled">← Prev</span>
           )}
           {next ? (
-            <Link className="work-nav-arrow" href={`/gallery/${next.slug}`}>
+            <Link className="work-nav-arrow" href={workHref(next)}>
               Next →
             </Link>
           ) : (
@@ -122,7 +126,7 @@ export default function WorkNavigator({ navigation }) {
               aria-current={isCurrent ? "true" : undefined}
               className={`work-nav-thumb${isCurrent ? " is-current" : ""}`}
               draggable={false}
-              href={`/gallery/${work.slug}`}
+              href={workHref(work)}
               key={work.slug}
               onClick={handleThumbClick}
               ref={isCurrent ? currentRef : null}

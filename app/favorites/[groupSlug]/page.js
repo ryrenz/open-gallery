@@ -44,6 +44,7 @@ export default async function FavoritesGroupPage({ params }) {
         </header>
 
         <GalleryGroupManager
+          collectionHref={`/favorites/${groupSlug}`}
           group={group}
           emptyRedirectHref="/favorites"
           note="Tap the heart on a cover to remove it from favorites, or use Edit to delete a set."

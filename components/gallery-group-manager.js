@@ -7,6 +7,7 @@ import { markGalleryInvalidated } from "@/lib/gallery-sync";
 
 export default function GalleryGroupManager({
   group,
+  collectionHref = null,
   emptyRedirectHref = "/",
   note = "Use Edit mode when you want to remove a set from this library.",
   editingNote = "Editing mode is on. Deleting a set moves its folder to macOS Trash.",
@@ -109,6 +110,11 @@ export default function GalleryGroupManager({
         {visibleGalleries.map((gallery) => (
           <GalleryCard
             gallery={gallery}
+            href={
+              collectionHref
+                ? `/gallery/${gallery.slug}?from=${encodeURIComponent(collectionHref)}`
+                : `/gallery/${gallery.slug}`
+            }
             interactive={!isEditing}
             key={gallery.slug}
             overlayAction={

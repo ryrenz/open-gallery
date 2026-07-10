@@ -47,6 +47,7 @@ export default async function ArtistGroupPage({ params }) {
         </header>
 
         <GalleryGroupManager
+          collectionHref={`/artists/${artistSlug}/${groupSlug}`}
           emptyRedirectHref={`/artists/${artistSlug}`}
           group={group}
           note="Use Edit mode when you want to remove a set from this artist."

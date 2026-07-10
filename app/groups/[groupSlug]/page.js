@@ -43,7 +43,10 @@ export default async function GalleryGroupPage({ params }) {
           </div>
         </header>
 
-        <GalleryGroupManager group={group} />
+        <GalleryGroupManager
+          collectionHref={`/groups/${groupSlug}`}
+          group={group}
+        />
       </div>
     </main>
   );

@@ -7,10 +7,14 @@ import { getGalleryBySlug, getGalleryNavigation } from "@/lib/gallery";
 
 export const dynamic = "force-dynamic";
 
-export default async function GalleryDetailPage({ params }) {
+export default async function GalleryDetailPage({ params, searchParams }) {
   const { slug } = await params;
+  const resolvedSearchParams = (await searchParams) ?? {};
+  const fromParam = Array.isArray(resolvedSearchParams.from)
+    ? resolvedSearchParams.from[0]
+    : resolvedSearchParams.from;
   const gallery = await getGalleryBySlug(slug);
-  const navigation = gallery ? await getGalleryNavigation(slug) : null;
+  const navigation = gallery ? await getGalleryNavigation(slug, fromParam) : null;
 
   if (!gallery) {
     return (
@@ -40,11 +44,8 @@ export default async function GalleryDetailPage({ params }) {
                 Back to covers
               </Link>
               {navigation ? (
-                <Link
-                  className="back-link"
-                  href={`/groups/${navigation.groupSlug}`}
-                >
-                  Back to {navigation.groupTitle}
+                <Link className="back-link" href={navigation.collectionHref}>
+                  Back to {navigation.collectionTitle}
                 </Link>
               ) : null}
             </div>
